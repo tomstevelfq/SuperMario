@@ -5,7 +5,7 @@ void Brick::setPos(int x,int y){
     py=y;
 }
 void Brick::update(){
-    Vector2f pos=mario.sprite.getPosition();
+    Vector2f pos=mario.pos;
     Vector2f tem=pos;
     float& vspeed=mario.vspeed;
     float& hspeed=mario.hspeed;
@@ -32,7 +32,7 @@ void Brick::update(){
                 if(px*CellSize+CellSize-pos.x>=CollisionWidth){
                     dy=floor((pos.y+vspeed)/CellSize)*CellSize-pos.y;
                     if(dy!=0){
-                        cout<<dy<<endl;
+                        cout<<"dy"<<dy<<endl;
                     }
                     vspeed=0;
                     ground=true;
@@ -62,21 +62,15 @@ void Brick::update(){
         if(checkCollision(pos.x,pos.y,RIGHT)){
             if(pos.y>py*CellSize){
                 if(py*CellSize+CellSize-pos.y>=CollisionHeight){
-                dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
+                dx=0;//floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
                 hspeed=0;
-                if(dx>10||dx<-10){
-                    cout<<dx<<endl;
-                }
                 }else{
                     dx=0; 
                 }
             }else{
                 if(pos.y+CellSize-py*CellSize>=CollisionHeight){
-                dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
+                dx=0;//floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
                 hspeed=0;
-                if(dx>10||dx<-10){
-                    cout<<dx<<endl;
-                }
                 }else{
                     dx=0; 
                 }
@@ -86,21 +80,15 @@ void Brick::update(){
         if(checkCollision(pos.x,pos.y,LEFT)){
             if(pos.y>py*CellSize){
                 if(py*CellSize+CellSize-pos.y>=CollisionHeight){
-                dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
+                dx=0;//ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
                 hspeed=0;
-                if(dx>10||dx<-10){
-                    cout<<dx<<endl;
-                }
                 }else{
                     dx=0; 
                 }
             }else{
                 if(pos.y+CellSize-py*CellSize>=CollisionHeight){
-                dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
+                dx=0;//ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
                 hspeed=0;
-                if(dx>10||dx<-10){
-                    cout<<dx<<endl;
-                }
                 }else{
                     dx=0; 
                 }

@@ -55,6 +55,7 @@ void Mario::drawGround(){
 void Mario::loadResource(){
     person_pic.loadFromFile("./Resource/mario.png");
     ground_pic.loadFromFile("./Resource/brick.png");
+    dead_pic.loadFromFile("./Resource/dead.png");
 }
 void Mario::draw(){
     marioMap->draw();
@@ -65,13 +66,81 @@ void Mario::update(){
     dy=0;
     timer2+=clock.getElapsedTime().asSeconds();
     clock.restart();
-    Vector2f pos=sprite.getPosition();
-    print("pos.y",{int(pos.y),checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize)),checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize),false)});
-    print("ground",{ground});
+    pos=sprite.getPosition();
+    //print("pos.y",{int(pos.y)});
+    //print("ground",{ground});
     if(!ground){
         vspeed=min(vspeed+Gravity,MaxVSpeed);
     }
 
+    switch(state){
+        case ALIVE:{
+            alive();
+            break;
+        }
+        case DEAD:{
+            dead();
+            break;
+        }
+    }
+}
+void Mario::move(int x){
+    if(x==0){
+        return;
+    }
+    cout<<x<<endl;
+    if(x>0){
+        offset+=x;
+        if(x+offset>ScreenWidth/2){
+            view.move(Vector2f(x,0));
+        }
+    }else{
+        offset+=x;
+        if(offset+x>ScreenHeight/2){//到边缘镜头不移动
+            view.move(Vector2f(x,0));
+        }
+    }
+}
+
+void Mario::print(string str,vector<int> v){
+    if(timer2>1){
+        cout<<str<<"  ";
+        for(auto it:v){
+            cout<<it<<" ";
+        }
+        cout<<endl;
+    }
+}
+void Mario::setPosition(float x,float y){
+    sprite.setPosition(Vector2f(x,y));
+}
+void Mario::startDead(){
+    sprite.setTexture(dead_pic,true);
+    sprite.setTextureRect(IntRect(0,0,16,16));
+    hspeed=0;
+    vspeed=-2*JumpSpeed;//开始跳
+    deadTimer=DeadTime;//死亡帧数计数器开始
+    state=DEAD;
+}
+void Mario::dead(){
+    if(deadTimer>0){
+        deadTimer--;
+        sprite.setPosition(Vector2f(sprite.getPosition().x,sprite.getPosition().y+vspeed));
+    }else{
+        cout<<"dead finish"<<endl;
+        sleep(seconds(0.2));
+        startAlive();
+    }
+}
+void Mario::startAlive(){
+    sprite.setTexture(person_pic,true);
+    sprite.setTextureRect(IntRect(0,0,PersonWidth,PersonHeight));
+    state=ALIVE;
+    sprite.setPosition({10,10});
+    vspeed=0;
+    hspeed=0;
+}
+void Mario::alive(){
     if(Keyboard::isKeyPressed(Keyboard::D)){
         if(hspeed<0){
             hspeed=hspeed+Acc;
@@ -79,7 +148,7 @@ void Mario::update(){
             hspeed=min(hspeed+Acc,MaxHSpeed);
         }
         walkAnimation();
-    
+
     }else if(Keyboard::isKeyPressed(Keyboard::A)){
         if(hspeed>0){
             hspeed=hspeed-Acc;
@@ -98,14 +167,13 @@ void Mario::update(){
         stand();
     }
 
-    bool flag=false;
     ground=false;
     for(int i=0;i<marioMap->m.size();i++){
         for(int j=0;j<ScreenHeight/CellSize;j++){
             if(marioMap->m[i][j].type!=Empty){
                 marioMap->m[i][j].brick->update();
                 if(dx!=0||dy!=0){
-                    sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
+                    //sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
                     pos.x+=dx;
                     pos.y+=dy;
                 }
@@ -113,14 +181,22 @@ void Mario::update(){
         }
     }
     sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
+    if(sprite.getPosition().x<0){//边缘检测
+        sprite.move(Vector2f(-sprite.getPosition().x,0));
+    }
 
-    if(sprite.getPosition().x+hspeed>=0){
+    if(sprite.getPosition().x+hspeed>=0){//镜头移动
         sprite.setPosition(sprite.getPosition().x+hspeed,sprite.getPosition().y);
         if(sprite.getPosition().x>ScreenWidth/2){
             view.setCenter(sprite.getPosition().x,view.getCenter().y);
+        }else{
+            view.setCenter(ScreenWidth/2,view.getCenter().y);
         }
     }
-
+    if(sprite.getPosition().y>=ScreenHeight){//高度死亡检测
+        cout<<"death"<<endl;
+        startDead();
+    }
 
     if(Keyboard::isKeyPressed(Keyboard::W)){
         if(ground&&jump==1){  //在地上的时候可以小跳
@@ -143,172 +219,4 @@ void Mario::update(){
     if(timer2>1){
         timer2-=1;
     }
-}
-
-void Mario::move(int x){
-    if(x==0){
-        return;
-    }
-    cout<<x<<endl;
-    if(x>0){
-        offset+=x;
-        if(x+offset>ScreenWidth/2){
-            view.move(Vector2f(x,0));
-        }
-    }else{
-        offset+=x;
-        if(offset+x>ScreenHeight/2){//到边缘镜头不移动
-            view.move(Vector2f(x,0));
-        }
-    }
-}
-Type Mario::checkCollision(IntRect rec,bool flag){
-    // for(int i=rec.left;i<=rec.left+rec.width;i+=CellSize){
-    //     for(int j=rec.top;j<=rec.top+rec.height;j+=CellSize){
-    //         pair<int,int> res=getTopleft(i,j);
-    //         Type t=marioMap->m[res.first][res.second].type;
-    //         if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-    //             return t;
-    //         }
-    //     }
-    // }
-    int i,j;
-    int collision=0;
-    if(flag){
-        collision=CollisionWidth;
-    }
-    i=rec.left+collision;
-    j=rec.top;
-    pair<int,int> res=getTopleft(i,j);
-    Type t=marioMap->m[res.first][res.second].type;
-    if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-        return t;
-    }
-    i=rec.left+CellSize-collision;
-    j=rec.top;
-    res=getTopleft(i,j);
-    t=marioMap->m[res.first][res.second].type;
-    if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-        return t;
-    }
-    i=rec.left+collision;
-    j=rec.top+CellSize;
-    res=getTopleft(i,j);
-    t=marioMap->m[res.first][res.second].type;
-    if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-        return t;
-    }
-    i=rec.left+CellSize-collision;
-    j=rec.top+CellSize;
-    res=getTopleft(i,j);
-    t=marioMap->m[res.first][res.second].type;
-    if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-        return t;
-    }
-    return Empty;
-}
-
-//碰撞检测函数
-Type Mario::checkCollision2(FloatRect rec,int direct){
-    float i,j;
-    pair<int,int> res;
-    Type t;
-    if(direct==0){//UP
-        i=rec.left;
-        j=rec.top;
-        res=getTopleft(i,j);
-        if(res.first*CellSize+CellSize-i>=CollisionWidth){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-        i=rec.left+CellSize;
-        j=rec.top;
-        res=getTopleft(i,j);
-        if(i-res.first*CellSize>=CollisionWidth){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-    }else if(direct==1){//DOWN
-        i=rec.left;
-        j=rec.top+CellSize;
-        res=getTopleft(i,j);
-        if(res.first*CellSize+CellSize-i>=CollisionWidth){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-        i=rec.left+CellSize;
-        j=rec.top+CellSize;
-        res=getTopleft(i,j);
-        if(i-res.first*CellSize>=CollisionWidth){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-    }else if(direct==2){//LEFT
-        i=rec.left;
-        j=rec.top;
-        res=getTopleft(i,j);
-        if(res.second*CellSize+CellSize-j>=CollisionHeight){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-        i=rec.left;
-        j=rec.top+CellSize;
-        res=getTopleft(i,j);
-        if(j-res.second*CellSize>=CollisionHeight){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-    }else if(direct==3){//RIGHT
-        i=rec.left+CellSize;
-        j=rec.top;
-        res=getTopleft(i,j);
-        if(res.second*CellSize+CellSize-j>=CollisionHeight){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-        i=rec.left+CellSize;
-        j=rec.top+CellSize;
-        res=getTopleft(i,j);
-        if(j-res.second*CellSize>=CollisionHeight){
-            t=marioMap->m[res.first][res.second].type;
-            if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-
-                return t;
-            }
-        }
-    }
-    return Empty;
-}
-void Mario::print(string str,vector<int> v){
-    if(timer2>1){
-        cout<<str<<"  ";
-        for(auto it:v){
-            cout<<it<<" ";
-        }
-        cout<<endl;
-    }
-}
-void Mario::setPosition(float x,float y){
-    sprite.setPosition(Vector2f(x,y));
 }

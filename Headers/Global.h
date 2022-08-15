@@ -11,12 +11,13 @@ const int CellSize=16;
 const int ZoomSize=4;
 const float MaxHSpeed=1.5;
 const float OriginHSpeed=0.5;
-const float MaxVSpeed=4.0;
+const float MaxVSpeed=4;
 const float Gravity=0.25;
 const float Acc=0.05;
 const float JumpSpeed=3.6;
 const int AnimationDuration=6;
 const int CollisionWidth=4;
+const int DeadTime=50;
 const float CollisionHeight=0.5;
 enum Type{
     Brick_,Bground,Empty

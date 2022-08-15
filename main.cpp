@@ -14,6 +14,8 @@ int main(){
     view.move(0,-10);
     Clock clock;
     float timer=0;
+    Clock c;
+    float t=0;
     while(window.isOpen()){
         timer+=clock.getElapsedTime().asSeconds();
         clock.restart();
@@ -27,7 +29,7 @@ int main(){
         }
 
         if(timer>=0.015){
-            timer-=0.015;
+            timer=0;
             mario.update();
             window.clear(Color::Blue);
             mario.draw();
