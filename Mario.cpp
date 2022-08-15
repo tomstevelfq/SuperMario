@@ -7,7 +7,7 @@ Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     marioMap=shared_ptr<Map>(new Map(window));
     for(int i=0;i<marioMap->m.size();i++){
         for(int j=0;j<ScreenHeight/CellSize;j++){
-            if(marioMap->m[i][j].type!=Empty){
+            if(marioMap->m[i][j].type!=Empty){//每个砖块都是一个对象
                 marioMap->m[i][j].brick=shared_ptr<Brick>(new Brick(*this,*marioMap));
                 marioMap->m[i][j].brick->setPos(i,j);
             }//初始化地图里面的对象
@@ -32,7 +32,6 @@ void Mario::rwalkAnimation(){
     }
 }
 void Mario::stand(){
-    //texture=&stand_pic;
     sprite.setTexture(person_pic,true);
     sprite.setTextureRect(IntRect(0,0,PersonWidth,PersonHeight));
 }
@@ -55,7 +54,6 @@ void Mario::drawGround(){
 }
 void Mario::loadResource(){
     person_pic.loadFromFile("./Resource/mario.png");
-    stand_pic.loadFromFile("./Resource/stand.png");
     ground_pic.loadFromFile("./Resource/brick.png");
 }
 void Mario::draw(){
@@ -75,11 +73,9 @@ void Mario::update(){
     }
 
     if(Keyboard::isKeyPressed(Keyboard::D)){
-        
         if(hspeed<0){
             hspeed=hspeed+Acc;
         }else{
-            //hspeed=OriginHSpeed;//min(hspeed+0.1,10.0);
             hspeed=min(hspeed+Acc,MaxHSpeed);
         }
         walkAnimation();
@@ -89,7 +85,6 @@ void Mario::update(){
             hspeed=hspeed-Acc;
         }else{
             hspeed=max(hspeed-Acc,-MaxHSpeed);
-            //hspeed=-OriginHSpeed;//max(hspeed-0.1,-10.0);
         }
         rwalkAnimation();
     }else{
@@ -118,7 +113,7 @@ void Mario::update(){
         }
     }
     sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
-    
+
     if(sprite.getPosition().x+hspeed>=0){
         sprite.setPosition(sprite.getPosition().x+hspeed,sprite.getPosition().y);
         if(sprite.getPosition().x>ScreenWidth/2){
@@ -149,121 +144,7 @@ void Mario::update(){
         timer2-=1;
     }
 }
-// void Mario::update(){
-//     timer2+=clock.getElapsedTime().asSeconds();
-//     clock.restart();
-//     Vector2f pos=sprite.getPosition();
-//     print("pos.y",{int(pos.y),checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize)),checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize),false)});
-//     print("ground",{ground});
-//     if(!ground){
-//         vspeed=min(vspeed+Gravity,MaxVSpeed);
-//     }
-//     if(vspeed<0){
-//         Type t=checkCollision2(FloatRect(pos.x,pos.y+vspeed,CellSize,CellSize),0);
-//         if(t!=Empty){
-//             vspeed=0;
-//         }
-//         dy=vspeed;
-//     }
-//     else{
-//         Type t=checkCollision2(FloatRect(pos.x,pos.y+vspeed,CellSize,CellSize),1);
-//         if(t!=Empty){
-//             dy=floor((pos.y+vspeed)/CellSize)*CellSize-pos.y;
-//             vspeed=0;
-//             ground=true;
-//             if(jump!=2){  //取消连续跳
-//                 jump=1;
-//             }
-//         }else{
-//             ground=false;//不在地上了
-//             dy=vspeed;
-//         }
-//     }
-//     pos.y+=dy;
-//     dy=0;
-//     if(Keyboard::isKeyPressed(Keyboard::D)){
-        
-//         if(hspeed<0){
-//             hspeed=hspeed+Acc;
-//         }else{
-//             //hspeed=OriginHSpeed;//min(hspeed+0.1,10.0);
-//             hspeed=min(hspeed+Acc,MaxHSpeed);
-//         }
-//         walkAnimation();
-    
-//     }else if(Keyboard::isKeyPressed(Keyboard::A)){
-//         if(hspeed>0){
-//             hspeed=hspeed-Acc;
-//         }else{
-//             hspeed=max(hspeed-Acc,-MaxHSpeed);
-//             //hspeed=-OriginHSpeed;//max(hspeed-0.1,-10.0);
-//         }
-//         rwalkAnimation();
-//     }else{
-//         rdua=0;
-//         dua=0;
-//         if(hspeed>0){
-//             hspeed=max(hspeed-0.3,0.0);
-//         }else if(hspeed<0){
-//             hspeed=min(hspeed+0.3,0.0);
-//         }
-//         stand();
-//     }
 
-    
-//     if(hspeed>0){
-//         Type t=checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),3);
-//         if(t!=Empty){//碰到墙壁开始停止
-//             dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-//             hspeed=0;
-//             if(dx>10||dx<-10){
-//                 cout<<dx<<endl;
-//             }
-//         }else{
-//             dx=hspeed;
-//         }
-//     }else if(hspeed<0){
-//         Type t=checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),2);
-//         if(t!=Empty){
-//             dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-//             hspeed=0;
-//             //cout<<dx<<endl;
-//         }else{
-//             dx=hspeed;
-//         }
-//     }else{
-//         dx=hspeed;
-//     }
-//     sprite.setPosition(pos.x+dx,pos.y+dy);
-//     if(sprite.getPosition().x+hspeed>=0){
-//         sprite.setPosition(sprite.getPosition().x+hspeed,sprite.getPosition().y);
-//         if(sprite.getPosition().x>ScreenWidth/2){
-//             view.setCenter(sprite.getPosition().x,view.getCenter().y);
-//         }
-//     }
-
-//     if(Keyboard::isKeyPressed(Keyboard::W)){
-//         if(ground&&jump==1){  //在地上的时候可以小跳
-//             ground=false;
-//             keepTimer=13;
-//             vspeed=-JumpSpeed;
-//             jump=2;
-//         }else{
-//             if(jump==2){  //小跳接大跳 防止二段跳
-//                 if(keepTimer>0){
-//                     ground=false;
-//                     keepTimer-=1;
-//                     vspeed=-JumpSpeed;
-//                 }
-//             }
-//         }
-//     }else{
-//         jump=3;
-//     }
-//     if(timer2>1){
-//         timer2-=1;
-//     }
-// }
 void Mario::move(int x){
     if(x==0){
         return;

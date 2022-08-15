@@ -9,13 +9,13 @@
 #include"Global.h"
 #include"Entity.h"
 #include<math.h>
+enum Direc{UP,DOWN,LEFT,RIGHT};//检测哪个方向的碰撞
 class Brick:public Entity{
     public:
         void update();
         Brick(Mario& mario,Map& m):Entity(mario,m){}
         void setPos(int x,int y);
     private:
-        Type checkCollision(sf::FloatRect rec,int direct);
-        bool checkCollision2(sf::FloatRect rec);
+        bool checkCollision(float x,float y,Direc direct);
 };
 #endif
