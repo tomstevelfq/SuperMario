@@ -18,7 +18,7 @@ Map::Map(RenderWindow& window):window(window){
     m.resize(siz+1,vector<Point>(ScreenHeight/CellSize));
     //初始化地图
     for(auto &it:tem){
-        m[it[0]][it[1]]=Point(it[2],it[3],Brick);
+        m[it[0]][it[1]]=Point(it[2],it[3],Brick_);
     }
 }
 void Map::draw(){

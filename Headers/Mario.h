@@ -11,6 +11,7 @@
 using namespace std;
 using namespace sf;
 class Mario{
+    friend class Brick;
     public:
         Mario(RenderWindow& wind,View& view);
         void update();
@@ -49,5 +50,6 @@ class Mario{
         Type checkBottomCollision(FloatRect rec);
         Type checkCollision2(FloatRect rec,int direct);
         void print(string,vector<int>);
+        void setPosition(float x,float y);
 };
 #endif

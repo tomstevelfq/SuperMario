@@ -1,9 +1,18 @@
 #include"Headers/Mario.h"
 #include<math.h>
+#include"Headers/Brick.h"
 
 Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     loadResource();
     marioMap=shared_ptr<Map>(new Map(window));
+    for(int i=0;i<marioMap->m.size();i++){
+        for(int j=0;j<ScreenHeight/CellSize;j++){
+            if(marioMap->m[i][j].type!=Empty){
+                marioMap->m[i][j].brick=shared_ptr<Brick>(new Brick(*this,*marioMap));
+                marioMap->m[i][j].brick->setPos(i,j);
+            }//初始化地图里面的对象
+        }
+    }
     sprite.setTexture(person_pic,true);
     sprite.setTextureRect(IntRect(0,0,PersonWidth,PersonHeight));
     sprite.setPosition({10,10});
@@ -54,6 +63,8 @@ void Mario::draw(){
     window.draw(sprite);
 }
 void Mario::update(){
+    dx=0;
+    dy=0;
     timer2+=clock.getElapsedTime().asSeconds();
     clock.restart();
     Vector2f pos=sprite.getPosition();
@@ -62,59 +73,23 @@ void Mario::update(){
     if(!ground){
         vspeed=min(vspeed+Gravity,MaxVSpeed);
     }
-    if(vspeed<0){
-        //Type t=checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize));
-        Type t=checkCollision2(FloatRect(pos.x,pos.y+vspeed,CellSize,CellSize),0);
-        if(t!=Empty){
-            vspeed=0;
-        }
-        dy=vspeed;
-    }
-    else{
-        //Type t=checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize));
-        Type t=checkCollision2(FloatRect(pos.x,pos.y+vspeed,CellSize,CellSize),1);
-        if(t!=Empty){
-            //dy=((int(pos.y)+int(vspeed))/CellSize)*CellSize-pos.y;
-            dy=floor((pos.y+vspeed)/CellSize)*CellSize-pos.y;
-            vspeed=0;
-            ground=true;
-            if(jump!=2){  //取消连续跳
-                jump=1;
-            }
-        }else{
-            ground=false;//不在地上了
-            // cout<<"false"<<pos.y+vspeed<<endl;
-            // if(pos.y+vspeed>=191.8){
-            //     int a=0;
-            //     cout<<"aa"<<endl;
-            //     a++;
-            // }
-            // //dy=vspeed;
-            // Type t=checkCollision(IntRect(pos.x,pos.y+vspeed-CollisionWidth,CellSize,CellSize));
-            // if(t!=Empty){
-            //     dx=round((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-            //     pos.x+=dx;
-            // }
-            dy=vspeed;
-        }
-    }
-    pos.y+=dy;
-    dy=0;
-    //cout<<pos.y<<endl;
+
     if(Keyboard::isKeyPressed(Keyboard::D)){
         
         if(hspeed<0){
-            hspeed=hspeed+Gravity;
+            hspeed=hspeed+Acc;
         }else{
-            hspeed=MaxHSpeed;//min(hspeed+0.1,10.0);
+            //hspeed=OriginHSpeed;//min(hspeed+0.1,10.0);
+            hspeed=min(hspeed+Acc,MaxHSpeed);
         }
         walkAnimation();
     
     }else if(Keyboard::isKeyPressed(Keyboard::A)){
         if(hspeed>0){
-            hspeed=hspeed-Gravity;
+            hspeed=hspeed-Acc;
         }else{
-            hspeed=-MaxHSpeed;//max(hspeed-0.1,-10.0);
+            hspeed=max(hspeed-Acc,-MaxHSpeed);
+            //hspeed=-OriginHSpeed;//max(hspeed-0.1,-10.0);
         }
         rwalkAnimation();
     }else{
@@ -128,105 +103,29 @@ void Mario::update(){
         stand();
     }
 
-    // if(checkCollision(IntRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),false)!=Empty){//碰到墙壁立即停下
-    //     Type t=checkBottomCollision(FloatRect(pos.x+hspeed,pos.y-1.6,CellSize,CellSize));
-    //     if(t!=Empty){
-    //         hspeed=0;
-    //     }else{
-    //         //dy=floor(pos.y/CellSize)*CellSize-pos.y;//升高
-    //         dy=0;
-    //         if(timer2>1){
-    //             cout<<"haha"<<dy<<endl;
-    //         }
-    //     }
-    //     dx=hspeed;
-    //     // if(hspeed>0){
-    //     //     dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-    //     // }else{
-    //     //     dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-    //     // }
-    //     // hspeed=0;
-    //     // if(timer2>1){
-    //     //     cout<<"dx"<<dx<<" "<<pos.x<<endl;
-    //     // }
-    // }else{
-    //     if(timer2>1){
-    //         cout<<"dx_"<<dx<<" "<<pos.x<<endl;
-    //     }
-    //     dx=hspeed;
-    // }
-    if(hspeed>0){
-        //if(checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),3)!=Empty){//碰到墙壁立即停下
-        Type t=checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),3);
-        if(t!=Empty){
-            hspeed=0;
+    bool flag=false;
+    ground=false;
+    for(int i=0;i<marioMap->m.size();i++){
+        for(int j=0;j<ScreenHeight/CellSize;j++){
+            if(marioMap->m[i][j].type!=Empty){
+                marioMap->m[i][j].brick->update();
+                if(dx!=0||dy!=0){
+                    sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
+                    pos.x+=dx;
+                    pos.y+=dy;
+                }
+            }
         }
-        // }else{
-        //     //dy=floor(pos.y/CellSize)*CellSize-pos.y;//升高
-        //     dy=0;
-        //     if(timer2>1){
-        //         cout<<"haha"<<dy<<endl;
-        //     }
-        // }
-        dx=hspeed;
-        // if(hspeed>0){
-        //     dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-        // }else{
-        //     dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-        // }
-        // hspeed=0;
-        // if(timer2>1){
-        //     cout<<"dx"<<dx<<" "<<pos.x<<endl;
-        // }
-        // }else{
-        //     if(timer2>1){
-        //         cout<<"dx_"<<dx<<" "<<pos.x<<endl;
-        //     }
-        //     dx=hspeed;
-        // }
-    }else if(hspeed<0){
-        Type t=checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),2);
-        if(t!=Empty){
-            hspeed=0;
-        }
-        dx=hspeed;
-    }else{
-        dx=hspeed;
     }
-    // if(checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),false)!=Empty){//碰到墙壁立即停下
-    //     Type t=checkBottomCollision(FloatRect(pos.x+hspeed,pos.y-1.6,CellSize,CellSize));
-    //     if(t!=Empty){
-    //         hspeed=0;
-    //     }else{
-    //         //dy=floor(pos.y/CellSize)*CellSize-pos.y;//升高
-    //         dy=0;
-    //         if(timer2>1){
-    //             cout<<"haha"<<dy<<endl;
-    //         }
-    //     }
-    //     dx=hspeed;
-    //     // if(hspeed>0){
-    //     //     dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-    //     // }else{
-    //     //     dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
-    //     // }
-    //     // hspeed=0;
-    //     // if(timer2>1){
-    //     //     cout<<"dx"<<dx<<" "<<pos.x<<endl;
-    //     // }
-    // }else{
-    //     if(timer2>1){
-    //         cout<<"dx_"<<dx<<" "<<pos.x<<endl;
-    //     }
-    //     dx=hspeed;
-    // }
-    sprite.setPosition(pos.x+dx,pos.y+dy);
+    sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
+    
     if(sprite.getPosition().x+hspeed>=0){
         sprite.setPosition(sprite.getPosition().x+hspeed,sprite.getPosition().y);
         if(sprite.getPosition().x>ScreenWidth/2){
             view.setCenter(sprite.getPosition().x,view.getCenter().y);
         }
     }
+
 
     if(Keyboard::isKeyPressed(Keyboard::W)){
         if(ground&&jump==1){  //在地上的时候可以小跳
@@ -250,6 +149,121 @@ void Mario::update(){
         timer2-=1;
     }
 }
+// void Mario::update(){
+//     timer2+=clock.getElapsedTime().asSeconds();
+//     clock.restart();
+//     Vector2f pos=sprite.getPosition();
+//     print("pos.y",{int(pos.y),checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize)),checkCollision(IntRect(pos.x,pos.y+vspeed,CellSize,CellSize),false)});
+//     print("ground",{ground});
+//     if(!ground){
+//         vspeed=min(vspeed+Gravity,MaxVSpeed);
+//     }
+//     if(vspeed<0){
+//         Type t=checkCollision2(FloatRect(pos.x,pos.y+vspeed,CellSize,CellSize),0);
+//         if(t!=Empty){
+//             vspeed=0;
+//         }
+//         dy=vspeed;
+//     }
+//     else{
+//         Type t=checkCollision2(FloatRect(pos.x,pos.y+vspeed,CellSize,CellSize),1);
+//         if(t!=Empty){
+//             dy=floor((pos.y+vspeed)/CellSize)*CellSize-pos.y;
+//             vspeed=0;
+//             ground=true;
+//             if(jump!=2){  //取消连续跳
+//                 jump=1;
+//             }
+//         }else{
+//             ground=false;//不在地上了
+//             dy=vspeed;
+//         }
+//     }
+//     pos.y+=dy;
+//     dy=0;
+//     if(Keyboard::isKeyPressed(Keyboard::D)){
+        
+//         if(hspeed<0){
+//             hspeed=hspeed+Acc;
+//         }else{
+//             //hspeed=OriginHSpeed;//min(hspeed+0.1,10.0);
+//             hspeed=min(hspeed+Acc,MaxHSpeed);
+//         }
+//         walkAnimation();
+    
+//     }else if(Keyboard::isKeyPressed(Keyboard::A)){
+//         if(hspeed>0){
+//             hspeed=hspeed-Acc;
+//         }else{
+//             hspeed=max(hspeed-Acc,-MaxHSpeed);
+//             //hspeed=-OriginHSpeed;//max(hspeed-0.1,-10.0);
+//         }
+//         rwalkAnimation();
+//     }else{
+//         rdua=0;
+//         dua=0;
+//         if(hspeed>0){
+//             hspeed=max(hspeed-0.3,0.0);
+//         }else if(hspeed<0){
+//             hspeed=min(hspeed+0.3,0.0);
+//         }
+//         stand();
+//     }
+
+    
+//     if(hspeed>0){
+//         Type t=checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),3);
+//         if(t!=Empty){//碰到墙壁开始停止
+//             dx=floor((pos.x+hspeed)/CellSize)*CellSize-pos.x;
+//             hspeed=0;
+//             if(dx>10||dx<-10){
+//                 cout<<dx<<endl;
+//             }
+//         }else{
+//             dx=hspeed;
+//         }
+//     }else if(hspeed<0){
+//         Type t=checkCollision2(FloatRect(pos.x+hspeed,pos.y-1,CellSize,CellSize),2);
+//         if(t!=Empty){
+//             dx=ceil((pos.x+hspeed)/CellSize)*CellSize-pos.x;
+//             hspeed=0;
+//             //cout<<dx<<endl;
+//         }else{
+//             dx=hspeed;
+//         }
+//     }else{
+//         dx=hspeed;
+//     }
+//     sprite.setPosition(pos.x+dx,pos.y+dy);
+//     if(sprite.getPosition().x+hspeed>=0){
+//         sprite.setPosition(sprite.getPosition().x+hspeed,sprite.getPosition().y);
+//         if(sprite.getPosition().x>ScreenWidth/2){
+//             view.setCenter(sprite.getPosition().x,view.getCenter().y);
+//         }
+//     }
+
+//     if(Keyboard::isKeyPressed(Keyboard::W)){
+//         if(ground&&jump==1){  //在地上的时候可以小跳
+//             ground=false;
+//             keepTimer=13;
+//             vspeed=-JumpSpeed;
+//             jump=2;
+//         }else{
+//             if(jump==2){  //小跳接大跳 防止二段跳
+//                 if(keepTimer>0){
+//                     ground=false;
+//                     keepTimer-=1;
+//                     vspeed=-JumpSpeed;
+//                 }
+//             }
+//         }
+//     }else{
+//         jump=3;
+//     }
+//     if(timer2>1){
+//         timer2-=1;
+//     }
+// }
 void Mario::move(int x){
     if(x==0){
         return;
@@ -312,34 +326,7 @@ Type Mario::checkCollision(IntRect rec,bool flag){
     }
     return Empty;
 }
-Type Mario::checkBottomCollision(FloatRect rec){
-    // for(int i=rec.left;i<=rec.left+rec.width;i+=CellSize){
-    //     for(int j=rec.top;j<=rec.top+rec.height;j+=CellSize){
-    //         pair<int,int> res=getTopleft(i,j);
-    //         Type t=marioMap->m[res.first][res.second].type;
-    //         if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-    //             return t;
-    //         }
-    //     }
-    // }
-    pair<int,int> res;
-    float i,j;
-    i=rec.left;
-    j=rec.top+CellSize;
-    res=getTopleft(i,j);
-    Type t=marioMap->m[res.first][res.second].type;
-    if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-        return t;
-    }
-    i=rec.left+CellSize;
-    j=rec.top+CellSize;
-    res=getTopleft(i,j);
-    t=marioMap->m[res.first][res.second].type;
-    if(t!=Empty){//找到冲突 冲突宽度足够大的时候
-        return t;
-    }
-    return Empty;
-}
+
 //碰撞检测函数
 Type Mario::checkCollision2(FloatRect rec,int direct){
     float i,j;
@@ -391,7 +378,7 @@ Type Mario::checkCollision2(FloatRect rec,int direct){
         i=rec.left;
         j=rec.top;
         res=getTopleft(i,j);
-        if(res.second*CellSize+CellSize-j>=0.5){
+        if(res.second*CellSize+CellSize-j>=CollisionHeight){
             t=marioMap->m[res.first][res.second].type;
             if(t!=Empty){//找到冲突 冲突宽度足够大的时候
 
@@ -401,7 +388,7 @@ Type Mario::checkCollision2(FloatRect rec,int direct){
         i=rec.left;
         j=rec.top+CellSize;
         res=getTopleft(i,j);
-        if(j-res.second*CellSize>=0.5){
+        if(j-res.second*CellSize>=CollisionHeight){
             t=marioMap->m[res.first][res.second].type;
             if(t!=Empty){//找到冲突 冲突宽度足够大的时候
 
@@ -412,7 +399,7 @@ Type Mario::checkCollision2(FloatRect rec,int direct){
         i=rec.left+CellSize;
         j=rec.top;
         res=getTopleft(i,j);
-        if(res.second*CellSize+CellSize-j>=0.5){
+        if(res.second*CellSize+CellSize-j>=CollisionHeight){
             t=marioMap->m[res.first][res.second].type;
             if(t!=Empty){//找到冲突 冲突宽度足够大的时候
 
@@ -422,7 +409,7 @@ Type Mario::checkCollision2(FloatRect rec,int direct){
         i=rec.left+CellSize;
         j=rec.top+CellSize;
         res=getTopleft(i,j);
-        if(j-res.second*CellSize>=0.5){
+        if(j-res.second*CellSize>=CollisionHeight){
             t=marioMap->m[res.first][res.second].type;
             if(t!=Empty){//找到冲突 冲突宽度足够大的时候
 
@@ -440,4 +427,7 @@ void Mario::print(string str,vector<int> v){
         }
         cout<<endl;
     }
+}
+void Mario::setPosition(float x,float y){
+    sprite.setPosition(Vector2f(x,y));
 }

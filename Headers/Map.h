@@ -4,6 +4,7 @@
 #include<SFML/Graphics.hpp>
 #include<vector>
 #include"Global.h"
+#include"Brick.h"
 using namespace std;
 using namespace sf;
 class Point{
@@ -13,10 +14,12 @@ class Point{
         int x;
         int y;
         Type type=Empty;
+        shared_ptr<Brick> brick;
 };
 class Map{
     public:
         friend class Mario;
+        friend class Brick;
         void draw();
         void update();
         Map(RenderWindow&);
