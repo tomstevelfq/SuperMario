@@ -14,14 +14,14 @@ class Point{
         int x;
         int y;
         Type type=Empty;
-        shared_ptr<Brick> brick;
+        shared_ptr<Entity> entity;
 };
 class Map{
     public:
         friend class Mario;
         friend class Brick;
         void draw();
-        void update();
+        void update(Mario& mario);
         Map(RenderWindow&);
         void move(int x,int y);
     private:

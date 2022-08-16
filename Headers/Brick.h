@@ -13,8 +13,9 @@ enum Direc{UP,DOWN,LEFT,RIGHT};//检测哪个方向的碰撞
 class Brick:public Entity{
     public:
         void update();
-        Brick(Mario& mario,Map& m):Entity(mario,m){}
+        Brick(Mario& mario,Map& m,sf::RenderWindow& wind);
         void setPos(int x,int y);
+        void draw();
     private:
         bool checkCollision(float x,float y,Direc direct);
 };

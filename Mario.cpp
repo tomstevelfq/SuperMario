@@ -8,8 +8,9 @@ Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     for(int i=0;i<marioMap->m.size();i++){
         for(int j=0;j<ScreenHeight/CellSize;j++){
             if(marioMap->m[i][j].type!=Empty){//每个砖块都是一个对象
-                marioMap->m[i][j].brick=shared_ptr<Brick>(new Brick(*this,*marioMap));
-                marioMap->m[i][j].brick->setPos(i,j);
+                marioMap->m[i][j].entity=shared_ptr<Entity>(new Brick(*this,*marioMap,window));
+                marioMap->m[i][j].entity->setPos(i,j);
+                marioMap->m[i][j].entity->setTexturePos(marioMap->m[i][j].x,marioMap->m[i][j].y);
             }//初始化地图里面的对象
         }
     }
@@ -168,18 +169,19 @@ void Mario::alive(){
     }
 
     ground=false;
-    for(int i=0;i<marioMap->m.size();i++){
-        for(int j=0;j<ScreenHeight/CellSize;j++){
-            if(marioMap->m[i][j].type!=Empty){
-                marioMap->m[i][j].brick->update();
-                if(dx!=0||dy!=0){
-                    //sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
-                    pos.x+=dx;
-                    pos.y+=dy;
-                }
-            }
-        }
-    }
+    marioMap->update(*this);
+    // for(int i=0;i<marioMap->m.size();i++){
+    //     for(int j=0;j<ScreenHeight/CellSize;j++){
+    //         if(marioMap->m[i][j].type!=Empty){
+    //             marioMap->m[i][j].entity->update();
+    //             if(dx!=0||dy!=0){
+    //                 //sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
+    //                 pos.x+=dx;
+    //                 pos.y+=dy;
+    //             }
+    //         }
+    //     }
+    // }
     sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
     if(sprite.getPosition().x<0){//边缘检测
         sprite.move(Vector2f(-sprite.getPosition().x,0));

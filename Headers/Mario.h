@@ -13,6 +13,7 @@ using namespace sf;
 enum LifeState{ALIVE,DEAD,INVINCIBLE};
 class Mario{
     friend class Brick;
+    friend class Map;
     public:
         Mario(RenderWindow& wind,View& view);
         void update();

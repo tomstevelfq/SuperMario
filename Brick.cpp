@@ -1,5 +1,13 @@
 #include"Headers/Brick.h"
 #include"Headers/Mario.h"
+Brick::Brick(Mario& mario,Map& m,sf::RenderWindow& wind):Entity(mario,m,wind){
+    sprite.setTexture(GenTexture::getTexture("brick.png"),true);
+    type=Brick_;//类型为砖块
+}
+void Brick::draw(){
+    sprite.setPosition(Vector2f(px*CellSize,py*CellSize));
+    window.draw(sprite);
+}
 void Brick::setPos(int x,int y){
     px=x;
     py=y;

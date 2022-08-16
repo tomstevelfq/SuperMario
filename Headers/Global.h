@@ -1,5 +1,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
+#include"SFML/Graphics.hpp"
+#include<map>
+using namespace sf;
 using namespace std;
 const int Height=192;
 const int PersonHeight=16;
@@ -27,5 +30,19 @@ inline pair<int,int> getTopleft(int x,int y){
 }
 inline pair<int,int> getTopleft(float x,float y){
     return {x/CellSize,y/CellSize};
-}
+} 
+class GenTexture{
+    public:
+        static Texture& getTexture(const string& file){
+            auto it=m.find(file);
+            if(it==m.end()){
+                auto& text=m[file];
+                text.loadFromFile("Resource/"+file);
+                return text;
+            }else{
+                return it->second;
+            }
+        }
+        static map<string,Texture> m;
+};
 #endif

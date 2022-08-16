@@ -1,5 +1,6 @@
 #include"Headers/Map.h"
 #include"Headers/Global.h"
+#include"Headers/Mario.h"
 #include<fstream>
 #include<algorithm>
 Map::Map(RenderWindow& window):window(window){
@@ -25,13 +26,22 @@ void Map::draw(){
     for(int i=0;i<m.size();i++){
         for(int j=0;j<ScreenHeight/CellSize;j++){
             if(m[i][j].type!=Empty){
-                sprite.setTextureRect(IntRect(m[i][j].x*CellSize,m[i][j].y*CellSize,CellSize,CellSize));
-                sprite.setPosition(Vector2f(i*CellSize,j*CellSize));
-                window.draw(sprite);
+                m[i][j].entity->draw();//把绘图写到entity中
             }
         }
     }
 }
-void Map::update(){
-
+void Map::update(Mario& mario){
+    for(int i=0;i<m.size();i++){
+        for(int j=0;j<ScreenHeight/CellSize;j++){
+            if(m[i][j].type!=Empty){
+                m[i][j].entity->update();
+                if(mario.dx!=0||mario.dy!=0){
+                    //sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
+                    mario.pos.x+=mario.dx;
+                    mario.pos.y+=mario.dy;
+                }
+            }
+        }
+    }
 }
