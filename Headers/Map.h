@@ -24,11 +24,13 @@ class Map{
         friend class Geezer;
         friend class Turtle;
         void draw();
-        void update(Mario& mario);
-        Map(RenderWindow&);
+        void update();
+        Map(RenderWindow&,Mario& mario);
         void move(int x,int y);
+        void init();
     private:
         RenderWindow& window;
+        Mario& mario;
         vector<vector<Point>> m;
         vector<shared_ptr<Entity>> enemies;
         Texture brick;

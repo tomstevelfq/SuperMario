@@ -10,6 +10,12 @@
 #include"Map.h"
 using namespace std;
 using namespace sf;
+struct Cell{
+    Cell(int x,int y,Type type):x(x),y(y),type(type){}
+    int x;
+    int y;
+    Type type;
+};
 class MapDesigner{
     public:
         void start();
@@ -31,7 +37,7 @@ class MapDesigner{
         float timer=0;
         Point toolPos;
         map<pair<int,int>,pair<int,int>> bricks;
-        map<pair<int,int>,pair<int,int>> enemys;
+        map<pair<int,int>,Cell> enemys;
         map<pair<int,int>,Point> m;
 
         void draw();

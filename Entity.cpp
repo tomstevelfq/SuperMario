@@ -2,12 +2,12 @@
 #include"Headers/Brick.h"
 #include"Headers/Geezer.h"
 
-void Entity::setProperty(Mario* mario_,shared_ptr<Map> map,RenderWindow* wind){
+void Entity::setProperty(Mario* mario_,Map* map,RenderWindow* wind){
     mario=mario_;
     marioMap=map;
     window=wind;
 }
-shared_ptr<Entity> EntityFactory::getEntity(Type type,Mario* mario,shared_ptr<Map> map,RenderWindow* wind){
+shared_ptr<Entity> EntityFactory::getEntity(Type type,Mario* mario,Map* map,RenderWindow* wind){
     shared_ptr<Entity> ptr;
     switch(type){
         case Brick_:

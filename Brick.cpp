@@ -23,6 +23,9 @@ void Brick::setPos(int x,int y){
     px=x;
     py=y;
 }
+Vector2f Brick::getPosition(){
+    return Vector2f(px*CellSize,py*CellSize);
+}
 void Brick::startDead(){
     state=Dying;
     auto pos=sprite.getPosition();

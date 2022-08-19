@@ -21,10 +21,10 @@ class Brick:public Entity{
         Brick();
         void setPos(int x,int y);
         void draw();
+        Vector2f getPosition();
+        void startDead();
     private:
         bool checkCollision(float x,float y,Direc direct);
-        void startDead();
-        Sta state;
         vector<Broke> broke;
 };
 #endif

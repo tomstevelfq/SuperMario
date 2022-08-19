@@ -12,6 +12,9 @@ class Turtle:public Entity{
         void draw();
         void update();
         void setPos(int x,int y);
+        void startDead();
+        void startDead2();
+        Vector2f getPosition();
     private:
         float vspeed=0;
         float hspeed=0;
@@ -21,10 +24,10 @@ class Turtle:public Entity{
         int anipos=0;
         int dyingTimer;
         int deadTimer;
-        Sta state;
+        int deadBounceTimer;
         void walkAnimation();
-        bool checkCollision(float x,float y,Direc direct);
+        void rwalkAnimation();
+        bool checkCollision(float x,float y,Direc direct,int objWidth=CellSize,int objHeight=CellSize);
         bool checkCollision(Direc direct,Type type);
-        void startDead();
 };
 #endif

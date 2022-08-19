@@ -2,6 +2,7 @@
 #include "Headers/Global.h"
 #include<fstream>
 
+static vector<Type> EnemyList={Geezer_,Turtle_};
 MapDesigner::MapDesigner(){
     cout<<"输入地图文件名字"<<endl;
     cin>>filename;
@@ -68,6 +69,11 @@ void MapDesigner::drawMap(){
             sprite.setTextureRect(IntRect(it.second.x*CellSize,it.second.y*CellSize,CellSize,CellSize));
             sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize));
             window.draw(sprite);
+        }else if(it.second.type==Turtle_){
+            sprite.setTexture(GenTexture::getTexture("Turtle.png"),true);
+            sprite.setTextureRect(IntRect(it.second.x*CellSize,it.second.y*CellSize,TurtleWidth,TurtleHeight));
+            sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize-TurtleHeight+CellSize));
+            window.draw(sprite);
         }
     }
 }
@@ -95,9 +101,6 @@ void MapDesigner::drawTools(){
     sprite.setTexture(brick_pic,true);
     for(int i=0;i<8;i++){
         for(int j=0;j<2;j++){
-            if(i==7&&j==1){
-                break;
-            }
             int h=min((i*2+j)/3,4);
             int w=(i*2+j)%3;
             sprite.setTextureRect(IntRect(w*CellSize,h*CellSize,CellSize,CellSize));
@@ -106,11 +109,21 @@ void MapDesigner::drawTools(){
             window.draw(sprite);
         }
     }
-    sprite.setTexture(enemy_pic,true);
-    sprite.setTextureRect(IntRect(0,0,CellSize,CellSize));
-    sprite.setPosition(Vector2f(325+(CellSize+gap)+offset,16+7*(CellSize+gap)));
-    enemys.insert({pair<int,int>{325+(CellSize+gap),16+7*(CellSize+gap)},pair<int,int>{0,0}});
-    window.draw(sprite);
+    for(int i=0;i<EnemyList.size();i++){
+        if(EnemyList[i]==Geezer_){
+            sprite.setTexture(GenTexture::getTexture("Geezer.png"),true);
+            sprite.setTextureRect(IntRect(0,0,CellSize,CellSize));
+            sprite.setPosition(Vector2f(325+(CellSize+gap)*2+offset,16+i*(CellSize+gap)));
+            enemys.insert({pair<int,int>{325+(CellSize+gap)*2,16+i*(CellSize+gap)},Cell(0,0,Geezer_)});
+            window.draw(sprite);
+        }else if(EnemyList[i]==Turtle_){
+            sprite.setTexture(GenTexture::getTexture("Turtle.png"),true);
+            sprite.setTextureRect(IntRect(0,0,TurtleWidth,TurtleHeight));
+            sprite.setPosition(Vector2f(325+(CellSize+gap)*2+offset,16+i*(CellSize+gap)));
+            enemys.insert({pair<int,int>{325+(CellSize+gap)*2,16+i*(CellSize+gap)},Cell(0,0,Turtle_)});
+            window.draw(sprite);
+        }
+    }
     if(tool){
         for(int i=0;i<4;i++){
             rec.setPosition(Vector2f(edge[i][0]+offset,edge[i][1]));
@@ -161,7 +174,7 @@ int MapDesigner::checkClick(int x,int y,Point& p){
             edge[1]={it.first.first-2,it.first.second-2,CellSize+4,2};
             edge[2]={it.first.first+CellSize,it.first.second-2,2,CellSize+4};
             edge[3]={it.first.first-2,it.first.second+CellSize,CellSize+4,2};
-            p={it.second.first,it.second.second,Geezer_};
+            p={it.second.x,it.second.x,it.second.type};
             res=2;
         }
     }

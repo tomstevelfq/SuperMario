@@ -21,7 +21,7 @@ class Mario{
         void update();
         void draw();
     private:
-        shared_ptr<Map> marioMap;
+        Map* marioMap;
         vector<shared_ptr<Texture>> person;
         RenderWindow& window;
         View& view;

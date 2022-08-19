@@ -7,11 +7,13 @@ class Geezer:public Entity{
         void update() override;
         void draw() override;
         void setPos(int x,int y) override;
+        Vector2f getPosition();
+        void startDead();
+        void startDead2();
     private:
         bool checkCollision(float x,float y,Direc direct);
         bool checkCollision(Direc direct,Type type);
         void walkAnimation();
-        void startDead();
         float vspeed=0;
         float hspeed=0;
         float px=0;
@@ -20,6 +22,7 @@ class Geezer:public Entity{
         int anipos=0;
         int dyingTimer;
         int deadTimer;
-        Sta state;
+        int deadBounceTimer=0;
+        bool enemyJumpFlag=false;
 };
 #endif

@@ -6,19 +6,8 @@
 
 Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     loadResource();
-    marioMap=shared_ptr<Map>(new Map(window));
-    for(int i=0;i<marioMap->m.size();i++){
-        for(int j=0;j<ScreenHeight/CellSize;j++){
-            if(marioMap->m[i][j].type!=Empty){//每个砖块都是一个对象
-                marioMap->m[i][j].entity=shared_ptr<Entity>(EntityFactory::getEntity(marioMap->m[i][j].type,this,marioMap,&window));
-                marioMap->m[i][j].entity->setPos(i,j);
-                marioMap->m[i][j].entity->setTexturePos(marioMap->m[i][j].x,marioMap->m[i][j].y);
-            }//初始化地图里面的对象
-        }
-    }
-    for(auto& it:marioMap->enemies){
-        it->setProperty(this,marioMap,&window);
-    }
+    marioMap=new Map(window,*this);
+    marioMap->init();
     sprite.setTexture(person_pic,true);
     sprite.setTextureRect(IntRect(0,0,PersonWidth,PersonHeight));
     sprite.setPosition({10,10});
@@ -175,7 +164,7 @@ void Mario::alive(){
     }
 
     ground=false;
-    marioMap->update(*this);
+    marioMap->update();
     
     sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
     if(sprite.getPosition().y>208){

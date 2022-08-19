@@ -24,6 +24,7 @@ void Geezer::update(){//老头的更新函数
         if(mario->vspeed>0){
             if(checkCollision(pos.x,pos.y,DOWN)){
                 startDead();
+                enemyJumpFlag=true;
             }
         }else{
             if(checkCollision(pos.x,pos.y,ALL)){
@@ -58,7 +59,10 @@ void Geezer::update(){//老头的更新函数
             dyingTimer--;
             sprite.setTextureRect(IntRect(0,0,CellSize,CellSize));
         }else if(dyingTimer>-dying_timer){
-            mario->vspeed=EnemyJump;
+            if(enemyJumpFlag){
+                enemyJumpFlag=false;
+                mario->vspeed=EnemyJump;
+            }
             dyingTimer--;
             sprite.setTextureRect(IntRect(2*CellSize,0,CellSize,CellSize));
         }else if(dyingTimer>-dying_timer-dead_timer){
@@ -67,13 +71,27 @@ void Geezer::update(){//老头的更新函数
         }else{
             state=Dead;
         }
-    }else if(state==Dead){
-        ;
+    }else if(state==DeadBounce){
+        if(deadBounceTimer>0){
+            deadBounceTimer--;
+            vspeed=min(vspeed+Gravity,MaxVSpeed);
+            if(vspeed<0){
+                sprite.setTextureRect(IntRect(0,0,CellSize,CellSize));
+            }else{
+                sprite.setTextureRect(IntRect(0,CellSize,CellSize,-CellSize));  
+            }
+            py+=vspeed;
+        }else{
+            state=Dead;
+        }
     }
 }
 void Geezer::setPos(int x,int y){
     px=x*CellSize;
     py=y*CellSize;
+}
+Vector2f Geezer::getPosition(){
+    return Vector2f(px,py);
 }
 void Geezer::draw(){
     if(state!=Dead){
@@ -111,9 +129,20 @@ bool Geezer::checkCollision(float x,float y,Direc direct){
     return false;
 }
 void Geezer::startDead(){
-    state=Dying;
-    dyingTimer=dying_timer;
-    deadTimer=dead_timer;
+    if(state!=Dying&&state!=Dead&&state!=DeadBounce){
+        state=Dying;
+        dyingTimer=dying_timer;
+        deadTimer=dead_timer;
+    }
+}
+void Geezer::startDead2(){
+    //反弹死亡
+    if(state!=Dying&&state!=Dead&&state!=DeadBounce){
+        state=DeadBounce;
+        hspeed=0;
+        vspeed=DeadJump;
+        deadBounceTimer=DeadTime;
+    }
 }
 bool Geezer::checkCollision(Direc direct,Type type){
     if(direct==DOWN){
