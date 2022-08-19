@@ -52,12 +52,24 @@ void MapDesigner::draw(){
 }
 void MapDesigner::drawMap(){
     sprite.setTexture(brick_pic,true);
+    // for(auto &it:m){
+    //     sprite.setTextureRect(IntRect(it.second.first*CellSize,it.second.second*CellSize,CellSize,CellSize));
+    //     sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize));
+    //     window.draw(sprite);
+    // }
     for(auto &it:m){
-        sprite.setTextureRect(IntRect(it.second.first*CellSize,it.second.second*CellSize,CellSize,CellSize));
-        sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize));
-        window.draw(sprite);
+        if(it.second.type==Brick_){
+            sprite.setTexture(brick_pic,true);
+            sprite.setTextureRect(IntRect(it.second.x*CellSize,it.second.y*CellSize,CellSize,CellSize));
+            sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize));
+            window.draw(sprite);
+        }else if(it.second.type==Geezer_){
+            sprite.setTexture(enemy_pic,true);
+            sprite.setTextureRect(IntRect(it.second.x*CellSize,it.second.y*CellSize,CellSize,CellSize));
+            sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize));
+            window.draw(sprite);
+        }
     }
-
 }
 void MapDesigner::drawLines(){
     //int x=offset/CellSize;
@@ -83,6 +95,9 @@ void MapDesigner::drawTools(){
     sprite.setTexture(brick_pic,true);
     for(int i=0;i<8;i++){
         for(int j=0;j<2;j++){
+            if(i==7&&j==1){
+                break;
+            }
             int h=min((i*2+j)/3,4);
             int w=(i*2+j)%3;
             sprite.setTextureRect(IntRect(w*CellSize,h*CellSize,CellSize,CellSize));
@@ -91,6 +106,11 @@ void MapDesigner::drawTools(){
             window.draw(sprite);
         }
     }
+    sprite.setTexture(enemy_pic,true);
+    sprite.setTextureRect(IntRect(0,0,CellSize,CellSize));
+    sprite.setPosition(Vector2f(325+(CellSize+gap)+offset,16+7*(CellSize+gap)));
+    enemys.insert({pair<int,int>{325+(CellSize+gap),16+7*(CellSize+gap)},pair<int,int>{0,0}});
+    window.draw(sprite);
     if(tool){
         for(int i=0;i<4;i++){
             rec.setPosition(Vector2f(edge[i][0]+offset,edge[i][1]));
@@ -112,8 +132,11 @@ void MapDesigner::loadFiles(){
     if(!arrow_pic.loadFromFile("Resource/arrow.png")){
         cout<<"error"<<endl;
     }
+    if(!enemy_pic.loadFromFile("Resource/Geezer.png")){
+        cout<<"error"<<endl;
+    }
 }
-int MapDesigner::checkClick(int x,int y,pair<int,int>& p){
+int MapDesigner::checkClick(int x,int y,Point& p){
     x-=offset;
     int left=x/CellSize;
     int top=y/CellSize;
@@ -128,7 +151,17 @@ int MapDesigner::checkClick(int x,int y,pair<int,int>& p){
             edge[1]={it.first.first-2,it.first.second-2,CellSize+4,2};
             edge[2]={it.first.first+CellSize,it.first.second-2,2,CellSize+4};
             edge[3]={it.first.first-2,it.first.second+CellSize,CellSize+4,2};
-            p=it.second;
+            p={it.second.first,it.second.second,Brick_};
+            res=2;
+        }
+    }
+    for(auto& it:enemys){
+        if(x>=it.first.first&&x<=it.first.first+CellSize&&y>=it.first.second&&y<=it.first.second+CellSize){
+            edge[0]={it.first.first-2,it.first.second-2,2,CellSize+4};
+            edge[1]={it.first.first-2,it.first.second-2,CellSize+4,2};
+            edge[2]={it.first.first+CellSize,it.first.second-2,2,CellSize+4};
+            edge[3]={it.first.first-2,it.first.second+CellSize,CellSize+4,2};
+            p={it.second.first,it.second.second,Geezer_};
             res=2;
         }
     }
@@ -145,14 +178,14 @@ void MapDesigner::click(){
     int x=pos.x;
     int y=pos.y;
 
-    pair<int,int> p;
+    Point p;
     //auto pos=getTopLeft(x,y);
     int res=checkClick(x,y,p);
     if(res==1){
         if(tool){
-            m[{p.first,p.second}]=toolPos;//向地图中加入材质
+            m[{p.x,p.y}]=toolPos;//向地图中加入各种材质
         }else{
-            m.erase({p.first,p.second});
+            m.erase({p.x,p.y});
         }
     }else if(res==2){
         tool=true;
@@ -174,11 +207,18 @@ pair<int,int> getTopLeft(int x,int y){
 }
 void MapDesigner::close(){
     ofstream ofs("MapResource/"+filename+".txt");
+    // for(auto& it:m){
+    //     ofs<<it.first.first<<" ";
+    //     ofs<<it.first.second<<" ";
+    //     ofs<<it.second.first<<" ";
+    //     ofs<<it.second.second<<endl;
+    // }
     for(auto& it:m){
         ofs<<it.first.first<<" ";
         ofs<<it.first.second<<" ";
-        ofs<<it.second.first<<" ";
-        ofs<<it.second.second<<endl;
+        ofs<<it.second.x<<" ";
+        ofs<<it.second.y<<" ";
+        ofs<<it.second.type<<endl;
     }
     ofs.close();
     window.close();

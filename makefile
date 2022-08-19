@@ -6,7 +6,7 @@ RM=del
 target=main.exe
 Outputs=Outputs\\
 lfile=$(IDIR) $(LDIR) $(LIB)
-ofile=$(Outputs)main.o $(Outputs)Mario.o $(Outputs)MapDesigner.o $(Outputs)Map.o $(Outputs)Brick.o
+ofile=$(Outputs)main.o $(Outputs)Mario.o $(Outputs)MapDesigner.o $(Outputs)Map.o $(Outputs)Brick.o $(Outputs)Global.o $(Outputs)Entity.o $(Outputs)Geezer.o
 $(target):$(ofile)
 	$(CC) $(ofile) $(lfile) -o $(target)
 $(Outputs)Mario.o:Mario.cpp
@@ -19,6 +19,12 @@ $(Outputs)Map.o:Map.cpp
 	$(CC) Map.cpp $(lfile) -c -o $(Outputs)Map.o
 $(Outputs)Brick.o:Brick.cpp
 	$(CC) Brick.cpp $(lfile) -c -o $(Outputs)Brick.o
+$(Outputs)Global.o:Global.cpp
+	$(CC) Global.cpp $(lfile) -c -o $(Outputs)Global.o
+$(Outputs)Entity.o:Entity.cpp
+	$(CC) Entity.cpp $(lfile) -c -o $(Outputs)Entity.o
+$(Outputs)Geezer.o:Geezer.cpp
+	$(CC) Geezer.cpp $(lfile) -c -o $(Outputs)Geezer.o
 
 clean:
 	$(RM) $(ofile) main.exe

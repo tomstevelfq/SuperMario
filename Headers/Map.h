@@ -10,6 +10,7 @@ using namespace sf;
 class Point{
     public:
         Point()=default;
+        Point(int x,int y):x(x),y(y){}
         Point(int x,int y,Type type):x(x),y(y),type(type){}
         int x;
         int y;
@@ -20,6 +21,8 @@ class Map{
     public:
         friend class Mario;
         friend class Brick;
+        friend class Geezer;
+        friend class Turtle;
         void draw();
         void update(Mario& mario);
         Map(RenderWindow&);
@@ -27,6 +30,7 @@ class Map{
     private:
         RenderWindow& window;
         vector<vector<Point>> m;
+        vector<shared_ptr<Entity>> enemies;
         Texture brick;
         Sprite sprite;
 };

@@ -14,6 +14,8 @@ enum LifeState{ALIVE,DEAD,INVINCIBLE};
 class Mario{
     friend class Brick;
     friend class Map;
+    friend class Geezer;
+    friend class Turtle;
     public:
         Mario(RenderWindow& wind,View& view);
         void update();

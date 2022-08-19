@@ -1,6 +1,8 @@
 #include"Headers/Mario.h"
 #include<math.h>
 #include"Headers/Brick.h"
+#include"Headers/Geezer.h"
+
 
 Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     loadResource();
@@ -8,11 +10,14 @@ Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     for(int i=0;i<marioMap->m.size();i++){
         for(int j=0;j<ScreenHeight/CellSize;j++){
             if(marioMap->m[i][j].type!=Empty){//每个砖块都是一个对象
-                marioMap->m[i][j].entity=shared_ptr<Entity>(new Brick(*this,*marioMap,window));
+                marioMap->m[i][j].entity=shared_ptr<Entity>(EntityFactory::getEntity(marioMap->m[i][j].type,this,marioMap,&window));
                 marioMap->m[i][j].entity->setPos(i,j);
                 marioMap->m[i][j].entity->setTexturePos(marioMap->m[i][j].x,marioMap->m[i][j].y);
             }//初始化地图里面的对象
         }
+    }
+    for(auto& it:marioMap->enemies){
+        it->setProperty(this,marioMap,&window);
     }
     sprite.setTexture(person_pic,true);
     sprite.setTextureRect(IntRect(0,0,PersonWidth,PersonHeight));
@@ -118,8 +123,9 @@ void Mario::setPosition(float x,float y){
 void Mario::startDead(){
     sprite.setTexture(dead_pic,true);
     sprite.setTextureRect(IntRect(0,0,16,16));
+    ground=false;
     hspeed=0;
-    vspeed=-2*JumpSpeed;//开始跳
+    vspeed=-JumpSpeed;//开始跳
     deadTimer=DeadTime;//死亡帧数计数器开始
     state=DEAD;
 }
@@ -161,28 +167,20 @@ void Mario::alive(){
         rdua=0;
         dua=0;
         if(hspeed>0){
-            hspeed=max(hspeed-0.3,0.0);
+            hspeed=max(hspeed-Acc,0.0f);
         }else if(hspeed<0){
-            hspeed=min(hspeed+0.3,0.0);
+            hspeed=min(hspeed+Acc,0.0f);
         }
         stand();
     }
 
     ground=false;
     marioMap->update(*this);
-    // for(int i=0;i<marioMap->m.size();i++){
-    //     for(int j=0;j<ScreenHeight/CellSize;j++){
-    //         if(marioMap->m[i][j].type!=Empty){
-    //             marioMap->m[i][j].entity->update();
-    //             if(dx!=0||dy!=0){
-    //                 //sprite.setPosition(Vector2f(pos.x+dx,pos.y+dy));
-    //                 pos.x+=dx;
-    //                 pos.y+=dy;
-    //             }
-    //         }
-    //     }
-    // }
+    
     sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
+    if(sprite.getPosition().y>208){
+        cout<<"hello"<<endl;
+    }
     if(sprite.getPosition().x<0){//边缘检测
         sprite.move(Vector2f(-sprite.getPosition().x,0));
     }

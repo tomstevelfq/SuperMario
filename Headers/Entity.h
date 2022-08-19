@@ -10,30 +10,35 @@
 using namespace sf;
 class Mario; 
 class Map;
-class Brick;
-class Geezer;
+enum Sta{Alive,Dying,Dead};
 class Entity{
     friend class Brick;
     friend class Geezer;
+    friend class Turtle;
     public:
-        Entity(Mario& m,Map& map_,sf::RenderWindow& wind):mario(m),marioMap(map_),window(wind){}
-        virtual void draw()=0;
-        virtual void update()=0;
-        virtual void setPos(int x,int y)=0;
+        Entity()=default;
+        void setProperty(Mario*,shared_ptr<Map>,RenderWindow*);
+        virtual void draw(){};
+        virtual void update(){};
+        virtual void setPos(int x,int y){};
         void setTexturePos(int x,int y){
             textureX=x;
             textureY=y;
             sprite.setTextureRect(IntRect(textureX*CellSize,textureY*CellSize,CellSize,CellSize));
         }
-        Type type;
+        Type type=Empty;
     private:
-        Mario& mario;
-        Map& marioMap;
-        sf::RenderWindow& window;
+        Mario* mario;
+        shared_ptr<Map> marioMap;
+        RenderWindow* window;
         Sprite sprite;
         int textureX;
         int textureY;
         int px;
         int py;
+};
+class EntityFactory{
+    public:
+        static shared_ptr<Entity> getEntity(Type type,Mario* mario,shared_ptr<Map> map,RenderWindow* wind);
 };
 #endif

@@ -9,14 +9,22 @@
 #include"Global.h"
 #include"Entity.h"
 #include<math.h>
-enum Direc{UP,DOWN,LEFT,RIGHT};//检测哪个方向的碰撞
+struct Broke{
+    Broke(float h,float v,RectangleShape rect):v(v),h(h),rec(rect){}
+    float v;
+    float h;
+    RectangleShape rec;
+};
 class Brick:public Entity{
     public:
         void update();
-        Brick(Mario& mario,Map& m,sf::RenderWindow& wind);
+        Brick();
         void setPos(int x,int y);
         void draw();
     private:
         bool checkCollision(float x,float y,Direc direct);
+        void startDead();
+        Sta state;
+        vector<Broke> broke;
 };
 #endif

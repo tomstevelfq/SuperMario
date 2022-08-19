@@ -7,6 +7,7 @@
 #include<memory>
 #include<iostream>
 #include<map>
+#include"Map.h"
 using namespace std;
 using namespace sf;
 class MapDesigner{
@@ -19,6 +20,7 @@ class MapDesigner{
         string filename;
         Texture brick_pic;
         Texture arrow_pic;
+        Texture enemy_pic;
         Sprite sprite;
         Sprite map_pic;
         RectangleShape rec;
@@ -27,16 +29,17 @@ class MapDesigner{
         int offset=0;
         bool tool=false;
         float timer=0;
-        pair<int,int> toolPos;
+        Point toolPos;
         map<pair<int,int>,pair<int,int>> bricks;
-        map<pair<int,int>,pair<int,int>> m;
+        map<pair<int,int>,pair<int,int>> enemys;
+        map<pair<int,int>,Point> m;
 
         void draw();
         void drawLines();
         void drawTools();
         void loadFiles();
         pair<int,int> getTopLeft(int x,int y);
-        int checkClick(int x,int y,pair<int,int>&);
+        int checkClick(int x,int y,Point&);
         void click();
         void drawMap();
         void close();
