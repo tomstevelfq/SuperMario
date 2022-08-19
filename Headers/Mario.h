@@ -11,6 +11,7 @@
 using namespace std;
 using namespace sf;
 enum LifeState{ALIVE,DEAD,INVINCIBLE};
+class Bullet;
 class Mario{
     friend class Brick;
     friend class Map;
@@ -25,6 +26,7 @@ class Mario{
         vector<shared_ptr<Texture>> person;
         RenderWindow& window;
         View& view;
+        vector<shared_ptr<Bullet>> bullets;
         Texture person_pic;
         Sprite sprite;
         Sprite ground_sprite;
@@ -46,6 +48,7 @@ class Mario{
         int dua=0;
         int rdua=0;
         int offset=0;
+        int fireDua=0;
         Clock clock;
         void walkAnimation();
         void rwalkAnimation();
@@ -59,5 +62,6 @@ class Mario{
         void dead();
         void startAlive();
         void alive();
+        void fire();
 };
 #endif

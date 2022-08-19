@@ -15,6 +15,7 @@ class Entity{
     friend class Brick;
     friend class Geezer;
     friend class Turtle;
+    friend class Bullet;
     public:
         Entity()=default;
         void setProperty(Mario*,Map*,RenderWindow*);

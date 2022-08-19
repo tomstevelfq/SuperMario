@@ -2,7 +2,7 @@
 #include<math.h>
 #include"Headers/Brick.h"
 #include"Headers/Geezer.h"
-
+#include"Headers/Bullet.h"
 
 Mario::Mario(RenderWindow& wind,View& view):window(wind),view(view){
     loadResource();
@@ -54,6 +54,9 @@ void Mario::loadResource(){
 }
 void Mario::draw(){
     marioMap->draw();
+    for(auto& it:bullets){
+        it->draw();
+    }
     window.draw(sprite);
 }
 void Mario::update(){
@@ -136,6 +139,18 @@ void Mario::startAlive(){
     vspeed=0;
     hspeed=0;
 }
+void Mario::fire(){//发射子弹
+    cout<<"fire"<<endl;
+    shared_ptr<Bullet> bullet(new Bullet());
+    bullet->setProperty(this,marioMap,&window);
+    if(hspeed<0){
+        bullet->hspeed*=-1;
+        bullet->setPos(pos.x,pos.y);
+    }else{
+        bullet->setPos(pos.x+CellSize,pos.y);
+    }
+    bullets.push_back(bullet);
+}
 void Mario::alive(){
     if(Keyboard::isKeyPressed(Keyboard::D)){
         if(hspeed<0){
@@ -165,6 +180,9 @@ void Mario::alive(){
 
     ground=false;
     marioMap->update();
+    for(auto& it:bullets){
+        it->update();
+    }
     
     sprite.setPosition(Vector2f(pos.x+hspeed,pos.y+vspeed));
     if(sprite.getPosition().y>208){
@@ -207,5 +225,14 @@ void Mario::alive(){
     }
     if(timer2>1){
         timer2-=1;
+    }
+
+    if(Keyboard::isKeyPressed(Keyboard::Enter)){
+        if(fireDua--==0){
+            fireDua=FireDuration;
+            fire();
+        }
+    }else{
+        fireDua=0;
     }
 }

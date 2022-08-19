@@ -6,7 +6,7 @@
 #include<fstream>
 #include<algorithm>
 Map::Map(RenderWindow& window,Mario& mario):window(window),mario(mario){
-    ifstream ifs("MapResource/l3.txt");
+    ifstream ifs("MapResource/l4.txt");
     brick.loadFromFile("Resource/brick.png");
     sprite.setTexture(brick);
     vector<vector<int>> tem;

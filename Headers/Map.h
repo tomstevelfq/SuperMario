@@ -23,6 +23,7 @@ class Map{
         friend class Brick;
         friend class Geezer;
         friend class Turtle;
+        friend class Bullet;
         void draw();
         void update();
         Map(RenderWindow&,Mario& mario);
