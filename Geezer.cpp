@@ -11,6 +11,8 @@ Geezer::Geezer(){
     type=Enemy;
     state=Alive;
     hspeed=GeezerHSpeed;
+    height=CellSize;
+    width=CellSize;
 }
 void Geezer::walkAnimation(){
     if(dua--==0){

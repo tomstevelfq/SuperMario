@@ -11,12 +11,14 @@
 using namespace std;
 using namespace sf;
 enum LifeState{ALIVE,DEAD,INVINCIBLE};
+enum BodySize{Small,Big,BulletAble};
 class Bullet;
 class Mario{
     friend class Brick;
     friend class Map;
     friend class Geezer;
     friend class Turtle;
+    friend class Treasure;
     public:
         Mario(RenderWindow& wind,View& view);
         void update();
@@ -44,6 +46,7 @@ class Mario{
         int jump=1;
         int keepTimer=15;
         int deadTimer=DeadTime;
+        BodySize bodySize=Small;
         int anipos=0;
         int dua=0;
         int rdua=0;

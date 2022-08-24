@@ -5,6 +5,7 @@
 #include<vector>
 #include"Global.h"
 #include"Brick.h"
+#include"Treasure.h"
 using namespace std;
 using namespace sf;
 class Point{
@@ -24,6 +25,7 @@ class Map{
         friend class Geezer;
         friend class Turtle;
         friend class Bullet;
+        friend class Treasure;
         void draw();
         void update();
         Map(RenderWindow&,Mario& mario);
@@ -34,6 +36,7 @@ class Map{
         Mario& mario;
         vector<vector<Point>> m;
         vector<shared_ptr<Entity>> enemies;
+        vector<shared_ptr<Treasure>> treasures;
         Texture brick;
         Sprite sprite;
 };

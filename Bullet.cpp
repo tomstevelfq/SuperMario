@@ -8,6 +8,7 @@ Bullet::Bullet(){
     sprite.setTextureRect(IntRect(0,0,BulletSize,BulletSize));
     hspeed=BulletHSpeed;
     vspeed=BulletVSpeed;
+    state=Alive;
 }
 void Bullet::flyAnimation(){
     if(dua--==0){
@@ -16,6 +17,26 @@ void Bullet::flyAnimation(){
         sprite.setTextureRect(IntRect(anipos*(BulletSize+4),0,BulletSize,BulletSize));
     }
 }
+void Bullet::DeadAnimation(){
+    if(dua--==0){
+        dua=AnimationDuration/2;
+        anipos++;
+        if(anipos==1){
+           sprite.setTextureRect(IntRect(8,0,12,12)); 
+        }else if(anipos==2){
+            sprite.setTextureRect(IntRect(20,0,16,16));
+        }else if(anipos==3){
+            state=Dead;
+        }
+    }
+}
+void Bullet::startDead(){
+    state=Dying;
+    dua=AnimationDuration/2;
+    anipos=0;
+    sprite.setTexture(GenTexture::getTexture("BulletDead.png"),true);
+    sprite.setTextureRect(IntRect(0,0,8,8)); 
+}
 void Bullet::draw(){
     if(state!=Dead){
         sprite.setPosition(Vector2f(px,py));
@@ -23,19 +44,32 @@ void Bullet::draw(){
     }
 }
 void Bullet::update(){
-    flyAnimation();
-    vspeed=min(vspeed+Gravity,MaxVSpeed);
-    py+=vspeed;
-    px+=hspeed;
-    int res=checkCollision();
-    if(res==1){
-        if(vspeed>0){
-            vspeed=-BulletJumpSpeed;
-        }else{
-            vspeed=BulletJumpSpeed;
+    if(state==Alive){
+        Vector2f pos;
+        for(auto it:marioMap->enemies){
+            pos=it->getPosition();
+            if(checkCollision(pos.x,pos.y,it->width,it->height)){
+                it->startDead2();
+                startDead();
+                break;
+            }
         }
-    }else if(res==2){
-        state=Dead;
+        flyAnimation();
+        vspeed=min(vspeed+Gravity,MaxVSpeed);
+        py+=vspeed;
+        px+=hspeed;
+        int res=checkCollision();
+        if(res==1){
+            if(vspeed>0){
+                vspeed=-BulletJumpSpeed;
+            }else{
+                vspeed=BulletJumpSpeed;
+            }
+        }else if(res==2){
+            startDead();
+        }
+    }else if(state==Dying){
+        DeadAnimation();
     }
 }
 void Bullet::setPos(int x,int y){
@@ -66,17 +100,32 @@ int Bullet::checkCollision(){
                     if(vspeed>0){
                         if(getTopleft(px+BulletSize,py+BulletSize)==pair<int,int>{x,y}||
                         getTopleft(px,py+BulletSize)==pair<int,int>{x,y}){
-                            if(py+BulletSize-pos.y>0&&py+BulletSize-pos.y<=6&&centerx-pos.x>=centery-pos.y){
-                                py=pos.y-BulletSize;
-                                return 1;//碰撞到顶部或者底部反弹
+                            if(py+BulletSize-pos.y>0&&py+BulletSize-pos.y<=6){
+                                if(centerx-pos.x>=centery-pos.y){
+                                    py=pos.y-BulletSize;
+                                    return 1;//碰撞到顶部或者底部反弹
+                                }else if(marioMap->m[x][y-1].type==Empty){
+                                    py=pos.y-BulletSize;
+                                    return 1;
+                                }else{
+                                    return 2;
+                                }
                             }else{
                                 return 2;//碰撞到侧面消失
                             }
                         }
                     }else{
                         if(getTopleft(px,py)==pair<int,int>{x,y}||getTopleft(px+BulletSize,py)==pair<int,int>{x,y}){
-                            if(pos.y+CellSize-py>0&&pos.y+CellSize-py<=6&&centerx-pos.x>=centery-pos.y){
-                                return 1;
+                            if(pos.y+CellSize-py>0&&pos.y+CellSize-py<=6){
+                                if(centerx-pos.x>=centery-pos.y){
+                                    py=pos.y+BulletSize;
+                                    return 1;
+                                }else if(marioMap->m[x][y+1].type==Empty){
+                                    py=pos.y+BulletSize;
+                                    return 1;
+                                }else{
+                                    return 2;
+                                }
                             }else{
                                 return 2;
                             }

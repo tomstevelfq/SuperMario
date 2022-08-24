@@ -3,6 +3,7 @@
 #include"Headers/Mario.h"
 #include"Headers/Geezer.h"
 #include"Headers/Turtle.h"
+#include"Headers/Treasure.h"
 #include<fstream>
 #include<algorithm>
 Map::Map(RenderWindow& window,Mario& mario):window(window),mario(mario){
@@ -35,6 +36,12 @@ Map::Map(RenderWindow& window,Mario& mario):window(window),mario(mario){
             ptr->setPos(it[0],it[1]);
             ptr->type=Turtle_;
             enemies.push_back(ptr);
+        }else if((Type)it[4]==Coin){
+            shared_ptr<Treasure> ptr(new Treasure());
+            ptr->setTexturePos(it[2],it[3]);
+            ptr->setPos(it[0],it[1]);
+            ptr->type=Coin;
+            treasures.push_back(ptr);
         }
     }
 }
@@ -51,6 +58,9 @@ void Map::init(){
     for(auto& it:enemies){
         it->setProperty(&mario,this,&window);
     }
+    for(auto& it:treasures){
+        it->setProperty(&mario,this,&window);
+    }
 }
 void Map::draw(){
     for(int i=0;i<m.size();i++){
@@ -61,6 +71,9 @@ void Map::draw(){
         }
     }
     for(auto& it:enemies){
+        it->draw();
+    }
+    for(auto& it:treasures){
         it->draw();
     }
 }
@@ -77,6 +90,9 @@ void Map::update(){
         }
     }
     for(auto& it:enemies){
+        it->update();
+    }
+    for(auto& it:treasures){
         it->update();
     }
     //移除死掉的敌人

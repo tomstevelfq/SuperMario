@@ -11,6 +11,8 @@ Turtle::Turtle(){
     type=Enemy;
     state=Alive;
     hspeed=TurtleHSpeed;
+    height=TurtleHeight;
+    width=TurtleWidth;
 }
 void Turtle::walkAnimation(){
     if(dua--==0){

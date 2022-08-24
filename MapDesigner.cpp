@@ -2,7 +2,7 @@
 #include "Headers/Global.h"
 #include<fstream>
 
-static vector<Type> EnemyList={Geezer_,Turtle_};
+static vector<Type> EnemyList={Geezer_,Turtle_,Coin};
 MapDesigner::MapDesigner(){
     cout<<"输入地图文件名字"<<endl;
     cin>>filename;
@@ -74,6 +74,11 @@ void MapDesigner::drawMap(){
             sprite.setTextureRect(IntRect(it.second.x*CellSize,it.second.y*CellSize,TurtleWidth,TurtleHeight));
             sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize-TurtleHeight+CellSize));
             window.draw(sprite);
+        }else if(it.second.type==Coin){
+            sprite.setTexture(GenTexture::getTexture("treasure.png"),true);
+            sprite.setTextureRect(IntRect(it.second.x*CellSize,it.second.y*CellSize,CellSize,CellSize));
+            sprite.setPosition(Vector2f(it.first.first*CellSize,it.first.second*CellSize));
+            window.draw(sprite);
         }
     }
 }
@@ -121,6 +126,12 @@ void MapDesigner::drawTools(){
             sprite.setTextureRect(IntRect(0,0,TurtleWidth,TurtleHeight));
             sprite.setPosition(Vector2f(325+(CellSize+gap)*2+offset,16+i*(CellSize+gap)));
             enemys.insert({pair<int,int>{325+(CellSize+gap)*2,16+i*(CellSize+gap)},Cell(0,0,Turtle_)});
+            window.draw(sprite);
+        }else if(EnemyList[i]==Coin){
+            sprite.setTexture(GenTexture::getTexture("treasure.png"),true);
+            sprite.setTextureRect(IntRect(0,0,CellSize,CellSize));
+            sprite.setPosition(Vector2f(325+(CellSize+gap)*2+offset,16+i*(CellSize+gap)));
+            enemys.insert({pair<int,int>{325+(CellSize+gap)*2,16+i*(CellSize+gap)},Cell(0,0,Coin)});
             window.draw(sprite);
         }
     }

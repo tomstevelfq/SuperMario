@@ -19,6 +19,8 @@ class Bullet:public Entity{
         void flyAnimation();
         bool checkCollision(float x,float y,int objWidth=CellSize,int objHeight=CellSize);
         int checkCollision();
+        void startDead();
+        void DeadAnimation();
         int dua=0;
         int anipos=0;
         float px;

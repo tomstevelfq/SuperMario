@@ -1,5 +1,6 @@
 #include"Headers/Brick.h"
 #include"Headers/Mario.h"
+#include<math.h>
 const float h1=1;
 const float h2=1.5;
 const float v1=-4;
@@ -17,11 +18,16 @@ void Brick::draw(){
         for(auto& it:broke){
             window->draw(it.rec);
         }
+    }else if(state=Wobble){
+        sprite.setPosition(Vector2f(px*CellSize,nowdpy));
+        window->draw(sprite);
     }
 }
 void Brick::setPos(int x,int y){
     px=x;
     py=y;
+    dpy=y*CellSize;
+    nowdpy=dpy;
 }
 Vector2f Brick::getPosition(){
     return Vector2f(px*CellSize,py*CellSize);
@@ -42,6 +48,10 @@ void Brick::startDead(){
     rec.setPosition(Vector2f(pos.x+CellSize/2.0,pos.y+CellSize/2.0));
     broke.push_back(Broke(h2,v2,rec));
 }
+void Brick::startDead2(){
+   state=Wobble;
+   vspeed=BrickWobbleSpeed;
+}
 void Brick::update(){
     if(state==Alive){
         Vector2f pos=mario->pos;
@@ -59,13 +69,13 @@ void Brick::update(){
                     if(px*CellSize+CellSize-pos.x>=CollisionWidth){
                         vspeed=0;
                         keepTimer=0;
-                        startDead(); //撞到砖块
+                        startDead2(); //撞到砖块
                     }
                 }else{
                     if(pos.x+CellSize-px*CellSize>=CollisionWidth){
                         vspeed=0;
                         keepTimer=0;
-                        startDead();
+                        startDead2();
                     }
                 }   
             }
@@ -166,8 +176,13 @@ void Brick::update(){
                 }
             }
         }
-    }else if(state==Dead){
-        ;
+    }else if(state==Wobble){
+        vspeed=min(vspeed+Gravity,MaxVSpeed);
+        nowdpy+=vspeed;
+        if(nowdpy>=dpy){
+            nowdpy=dpy;
+            state=Alive;
+        }
     }
 }
 bool Brick::checkCollision(float x,float y,Direc direct){

@@ -10,12 +10,13 @@
 using namespace sf;
 class Mario; 
 class Map;
-enum Sta{Alive,Dying,Dead,DeadBounce,Slide,Shrink};
+enum Sta{Alive,Dying,Dead,DeadBounce,Slide,Shrink,Wobble,TreaEmpty};
 class Entity{
     friend class Brick;
     friend class Geezer;
     friend class Turtle;
     friend class Bullet;
+    friend class Treasure;
     public:
         Entity()=default;
         void setProperty(Mario*,Map*,RenderWindow*);
@@ -41,6 +42,8 @@ class Entity{
         int textureY;
         int px;
         int py;
+        int width;
+        int height;
 };
 class EntityFactory{
     public:

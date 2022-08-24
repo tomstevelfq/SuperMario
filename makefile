@@ -6,7 +6,7 @@ RM=del
 target=main.exe
 Outputs=Outputs\\
 lfile=$(IDIR) $(LDIR) $(LIB)
-ofile=$(Outputs)main.o $(Outputs)Mario.o $(Outputs)MapDesigner.o $(Outputs)Map.o $(Outputs)Brick.o $(Outputs)Global.o $(Outputs)Entity.o $(Outputs)Geezer.o $(Outputs)Turtle.o $(Outputs)Bullet.o
+ofile=$(Outputs)main.o $(Outputs)Mario.o $(Outputs)MapDesigner.o $(Outputs)Map.o $(Outputs)Brick.o $(Outputs)Global.o $(Outputs)Entity.o $(Outputs)Geezer.o $(Outputs)Turtle.o $(Outputs)Bullet.o $(Outputs)Treasure.o
 $(target):$(ofile)
 	$(CC) $(ofile) $(lfile) -o $(target)
 $(Outputs)Mario.o:Mario.cpp
@@ -29,5 +29,7 @@ $(Outputs)Turtle.o:Turtle.cpp
 	$(CC) Turtle.cpp $(lfile) -c -o $(Outputs)Turtle.o
 $(Outputs)Bullet.o:Bullet.cpp
 	$(CC) Bullet.cpp $(lfile) -c -o $(Outputs)Bullet.o
+$(Outputs)Treasure.o:Treasure.cpp
+	$(CC) Treasure.cpp $(lfile) -c -o $(Outputs)Treasure.o
 clean:
 	$(RM) $(ofile) main.exe

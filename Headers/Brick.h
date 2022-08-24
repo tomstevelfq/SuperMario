@@ -23,8 +23,12 @@ class Brick:public Entity{
         void draw();
         Vector2f getPosition();
         void startDead();
+        void startDead2();
     private:
         bool checkCollision(float x,float y,Direc direct);
         vector<Broke> broke;
+        float vspeed=0;
+        float dpy;
+        float nowdpy;
 };
 #endif

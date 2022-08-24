@@ -28,17 +28,20 @@ const float EnemyJump=-2.5;
 const float GeezerHSpeed=0.8;
 const float TurtleHSpeed=0.8;
 const float BulletJumpSpeed=3.0;
+const float BrickWobbleSpeed=-1.5;
 const int AnimationDuration=6;
 const int BulletAnimationDuration=10;
 const int GeezerAnimationDuration=20;
 const int TurtleAnimationDuration=20;
+const int CoinDuration=5;
 const int FireDuration=15;
 const float TurtleSlideSpeed=2.5;
 const int CollisionWidth=4;
 const int DeadTime=50;
+const int DeadAnimationDuration=15;
 const float CollisionHeight=0.5;
 enum Type{
-    Brick_,Bground,Empty,Enemy,Geezer_,Turtle_
+    Brick_,Bground,Empty,Enemy,Geezer_,Turtle_,Coin,Mushroom
 };
 enum Direc{UP,DOWN,LEFT,RIGHT,ALL};//检测哪个方向的碰撞
 inline pair<int,int> getTopleft(int x,int y){
